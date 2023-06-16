@@ -1,6 +1,9 @@
-import people from './users.js'
+// import people from './users.js'
 
-let users = people
+// let users = people
+
+import * as usersDao from "./users-dao.js";
+
 const UserController = (app) => {
     app.get('/api/users', findUsers)
     app.get('/api/users/:uid', findUserById)
@@ -9,12 +12,33 @@ const UserController = (app) => {
     app.put('/api/users/:uid', updateUser);
 }
 
-const createUser = (req, res) => {
-    const newUser = req.body;
-    newUser._id = (new Date()).getTime() + '';
-    users.push(newUser);
+const createUser = async (req, res) => {
+    const newUser = await usersDao.createUser(req.body);
     res.json(newUser);
-}
+};  
+
+const findAllUsers = async (req, res) => {
+    const username = req.query.username;
+    const password = req.query.password;
+    if (username && password) {
+        const user = await usersDao.findUserByCredentials(username, password); // use DAO
+        if (user) {
+            res.json(user);
+        } else {
+            res.sendStatus(404);
+        }
+    } else if (username) {
+        const user = await usersDao.findUserByUsername(username); // use DAO
+        if (user) {
+            res.json(user);
+        } else {
+            res.sendStatus(404);
+        }
+    } else {
+        const users = await usersDao.findAllUsers(); // use DAO
+        res.json(users);
+    }
+}; 
 
 const findUsers = (req, res) => {
     const type = req.query.type
@@ -30,34 +54,24 @@ const findUsers = (req, res) => {
     res.json(users)
 }
 
-const findUserById = (req, res) => {
-    const userId = req.params.uid;
-    const user = users.find(u => u._id === userId);
-    res.json(user)
+const findUserById = async (req, res) => {
+    const id = req.params.id;
+    const user = await usersDao.findUserById(id);
+    res.json(user);
 }
 
-const deleteUser = (req, res) => {
-    const userId = req.params['uid'];
-    users = users.filter(usr => usr._id !== userId);
-    res.sendStatus(200);
-}
+const deleteUser = async (req, res) => {
+    const id = req.params.id;
+    const status = await usersDao.deleteUser(id);
+    res.json(status);
+};  
 
-const updateUser = (req, res) => { // handle PUT /api/users/:uid
-
-    const userId = req.params['uid']; // get user ID from path
-
-    const updates = req.body // BODY includes updated fields
-
-    users = users.map((usr) => // create a new array of users
-    
-    usr._id === userId ? // if current user's ID matches ID we want to update
-
-    {...usr, ...updates} : // merge old usr with new updates
-    
-    usr); // otherwise keep the old user
-
-    res.sendStatus(200); //return OK
-
-}
+const updateUser = async (req, res) => {
+    const id = req.params.id;
+    const status = await usersDao.updateUser(id, req.body);
+    const user = await usersDao.findUserById(id);
+    req.session["currentUser"] = user;
+    res.json(status);
+};  
 
 export default UserController
