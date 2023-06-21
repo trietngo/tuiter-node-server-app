@@ -9,8 +9,8 @@ export const findAllUsers = () =>
     usersModel.find();
 
 // Find by ID
-export const findUserById = (id) =>
-    usersModel.findById(id);
+export const findUserById = (userId) =>
+    usersModel.findById(userId);
 
     // const index = users.findIndex((u) => u._id === uid);
     // if (index !== -1) return users[index];

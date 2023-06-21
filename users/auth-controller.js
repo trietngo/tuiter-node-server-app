@@ -13,7 +13,7 @@ const AuthController = (app) => {
             res.sendStatus(403);
             return;
         }
-        const newUser = await userDao.createUser(req.body);
+        const newUser = await usersDao.createUser(req.body);
         req.session["currentUser"] = newUser;
         res.json(newUser);
     };      
@@ -39,7 +39,7 @@ const AuthController = (app) => {
 
     // If a user has already logged in, we can retrieve the current user by using the profile API
     const profile = (req, res) => {
-        const currentUser = currentUserVar;
+        const currentUser = req.session["currentUser"];
 
         if (!currentUser) {
             res.sendStatus(404);
@@ -72,7 +72,7 @@ const AuthController = (app) => {
 
     app.post("/api/users/register", register);
     app.post("/api/users/login",    login);
-    app.post("/api/users/profile",  profile);
+    app.get("/api/users/profile",  profile);
     app.post("/api/users/logout",   logout);
     app.put ("/api/users",          update);
 };
