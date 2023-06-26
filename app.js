@@ -14,6 +14,7 @@ const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || 'mongodb://localho
 mongoose.connect(CONNECTION_STRING);
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(
     cors({
@@ -28,6 +29,7 @@ app.use( // configure server session
     session({
         secret: "any string",
         resave: false,
+        proxy: true,
         saveUninitialized: false,
         store: new session.MemoryStore(),
     })
