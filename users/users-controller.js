@@ -50,8 +50,8 @@ const UserController = (app) => {
     const updateUser = async (req, res) => {
         const id = req.params.id;
         const status = await usersDao.updateUser(id, req.body);
-        const user = await usersDao.findUserById(id);
-        req.session["currentUser"] = user;
+        // const user = await usersDao.findUserById(id);
+        // req.session["currentUser"] = user;
         res.json(status);
     };
 
